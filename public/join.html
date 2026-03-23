@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Join a meeting session with live AirCanvas annotations">
+    <title>Join Meeting - AirCanvas Platform</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        <!-- TOP BAR -->
+        <header class="top-bar">
+            <div class="brand">
+                <span class="brand-logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 100 100" fill="none" stroke="url(#logo-grad-j)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;">
+                      <defs>
+                        <linearGradient id="logo-grad-j" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#FF6BF0"/>
+                          <stop offset="100%" stop-color="#4DA3FF"/>
+                        </linearGradient>
+                      </defs>
+                      <path d="M38 62 L48 38 h4 L62 62 M42 54 h16"/>
+                      <g id="figLogoJ">
+                        <path d="M42 22 L50 32 L58 22" />
+                        <circle cx="50" cy="12" r="4.5" fill="url(#logo-grad-j)" stroke="none"/>
+                      </g>
+                      <use href="#figLogoJ" transform="rotate(45 50 50)" />
+                      <use href="#figLogoJ" transform="rotate(90 50 50)" />
+                      <use href="#figLogoJ" transform="rotate(135 50 50)" />
+                      <use href="#figLogoJ" transform="rotate(180 50 50)" />
+                      <use href="#figLogoJ" transform="rotate(225 50 50)" />
+                      <use href="#figLogoJ" transform="rotate(270 50 50)" />
+                      <use href="#figLogoJ" transform="rotate(315 50 50)" />
+                    </svg>
+                </span>
+                <h1 class="brand-title">AirCanvas – Participant View</h1>
+            </div>
+
+            <div class="room-pill">
+                <span class="room-label">CONNECTED TO</span>
+                <span class="room-value" id="connectedRoomId">-----</span>
+            </div>
+
+            <div class="top-actions">
+                <a href="index.html" class="btn btn-secondary">Exit to Home</a>
+            </div>
+        </header>
+
+        <!-- MAIN DASHBOARD BODY -->
+        <main class="dashboard-body">
+            <!-- JOIN FORM (Overlay before connecting) -->
+            <div id="joinForm" class="video-placeholder" style="z-index: 20;">
+                <div class="join-container">
+                    <h2 class="text-center mb-md">Join Session</h2>
+                    <p class="text-center text-muted mb-lg">Enter the Room ID provided by the host</p>
+
+                    <div class="control-group mb-lg">
+                        <label class="control-header">Room ID</label>
+                        <input type="text" id="roomIdInput" class="range-slider"
+                            style="background: rgba(255,255,255,0.05); height: 50px; border-radius: 8px; font-family: monospace; font-size: 1.5rem; text-align: center; color: var(--color-accent); border: 1px solid rgba(255,255,255,0.1);"
+                            placeholder="XXXX-XXXX" maxlength="9">
+                    </div>
+
+                    <button id="joinBtn" class="btn btn-primary btn-block">Join Meeting</button>
+
+                    <div id="backToHome" class="mt-md text-center">
+                        <a href="index.html" class="text-muted" style="font-size: 0.9rem; text-decoration: none;">← Back
+                            to Home</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEWER SECTION (Dashboard Panels) -->
+            <!-- LEFT PANEL: Session Information -->
+            <aside class="panel panel-left">
+                <div class="panel-header">
+                    <h2>Session Details</h2>
+                </div>
+
+                <div class="panel-content">
+                    <div class="info-card">
+                        <h3>Participant Role</h3>
+                        <p>You are viewing the host's live video stream with real-time gesture annotations.</p>
+                    </div>
+
+                    <div class="info-card subdued">
+                        <h3>Gestures</h3>
+                        <p>The host uses hand gestures to draw and annotate directly on the screen.</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CENTER PANEL: Host Video + Canvas -->
+            <section class="panel panel-center">
+                <div id="viewerSection" class="hidden"
+                    style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                    <div class="video-workspace" id="videoWorkspace">
+                        <div class="canvas-wrapper">
+                            <!-- Host's Video Stream via WebRTC -->
+                            <video id="viewerVideo" autoplay playsinline
+                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);"></video>
+
+                            <!-- Viewer Canvas for displaying host's drawings -->
+                            <canvas id="viewerCanvas"></canvas>
+
+                            <!-- Remote Participant Strip -->
+                            <div id="participant-strip" style="position: absolute; bottom: 20px; right: 20px; display: flex; gap: 10px; flex-wrap: wrap; z-index: 100;"></div>
+
+                            <!-- Placeholder / Status -->
+                            <div id="viewerPlaceholder" class="video-placeholder">
+                                <div class="placeholder-content">
+                                    <span class="placeholder-icon">⏳</span>
+                                    <p>Waiting for host video stream...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: Controls & Status -->
+            <aside class="panel panel-right">
+                <div class="panel-header">
+                    <h2>Settings & Status</h2>
+                </div>
+
+                <div class="panel-content">
+                    <!-- Audio Controls -->
+                    <div class="control-group">
+                        <label class="control-header">Audio Settings</label>
+                        <div style="display: flex; flex-direction: row; gap: 10px;">
+                            <button id="toggleMicBtn" class="btn btn-secondary" style="flex:1;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
+                            </button>
+                            <button id="toggleVideoBtn" class="btn btn-secondary" style="flex:1;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"></path><rect x="2" y="6" width="14" height="12" rx="2"></rect></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Status Items -->
+                    <div class="status-list">
+                        <div class="status-item">
+                            <label>Connection</label>
+                            <div class="status-indicator status-active" id="connectionStatus">
+                                <span class="status-dot"></span>
+                                <span class="status-text">Connected</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <label>Host Video</label>
+                            <div class="status-indicator status-inactive" id="videoStatus">
+                                <span class="status-dot"></span>
+                                <span class="status-text">Waiting...</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <label>Sync State</label>
+                            <div class="status-indicator status-inactive" id="syncStatus">
+                                <span class="status-dot"></span>
+                                <span class="status-text">Waiting...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-footer">
+                        <button id="leaveSessionBtn" class="btn btn-danger btn-block">Leave Session</button>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="footer-title">Final Year Engineering Project</p>
+        <p>Gesture-Based Human Computer Interaction System</p>
+        <p>Developed for Academic Demonstration</p>
+    </footer>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/socket-join.js"></script>
+    <script src="js/join.js"></script>
+    <script src="js/webrtc-manager.js"></script>
+</body>
+
+</html>

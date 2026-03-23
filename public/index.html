@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Gesture-Based Interaction for Real-Time Communication">
+  <title>AirCanvas - Interaction Platform</title>
+  <link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+
+  <main class="container">
+    <!-- HERO SECTION -->
+    <section class="hero-section reveal">
+      <div class="hero-badge">
+        <span class="dot"></span> Gesture-Powered
+      </div>
+      <h1 class="hero-title">
+        Gesture-Based Interaction for <br>
+        <span class="highlight">Real-Time Communication</span>
+      </h1>
+      <p class="hero-subtext">
+        Transform online meetings with pure computer vision. 
+        Draw, annotate, and interface via highly precise hand-tracking—no extra hardware required.
+      </p>
+
+      <!-- PRIMARY ACTION CTA -->
+      <div class="cta-group">
+        <!-- HOST CARD -->
+        <div class="cta-card host" onclick="window.location.href='host.html'">
+          <div class="cta-title">Create Meeting</div>
+          <p class="cta-desc">Initialize a new secure AirCanvas session and stream video instantly.</p>
+          <div class="cta-arrow">→</div>
+        </div>
+
+        <!-- JOIN CARD -->
+        <div class="cta-card join">
+          <div class="cta-title">Join Meeting</div>
+          <p class="cta-desc">Connect to an active session stream using the provided Room ID.</p>
+          
+          <div class="cta-input-group" onclick="event.stopPropagation()">
+            <input type="text" id="landingRoomId" placeholder="XXXX-XXXX" maxlength="9" autocomplete="off" oninput="formatRoomId(this)" onkeypress="if(event.key==='Enter') goToJoin(this.value)">
+            <button onclick="goToJoin(document.getElementById('landingRoomId').value)">JOIN</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="features-section reveal" style="animation-delay: 0.15s;">
+      <div class="features-grid">
+        <div class="feature-cell">
+          <div class="feature-number">01</div>
+          <div class="feature-title">Real-Time Gesture Detection</div>
+          <div class="feature-desc">Sub-millisecond latency hand tracking optimized via MediaPipe integration.</div>
+        </div>
+        <div class="feature-cell">
+          <div class="feature-number">02</div>
+          <div class="feature-title">Air Canvas Drawing</div>
+          <div class="feature-desc">Overlay crisp, hardware-accelerated vectors directly onto live video feeds.</div>
+        </div>
+        <div class="feature-cell">
+          <div class="feature-number">03</div>
+          <div class="feature-title">Touchless Interaction</div>
+          <div class="feature-desc">Control meeting tools natively through intuitive spatial hand gestures.</div>
+        </div>
+        <div class="feature-cell">
+          <div class="feature-number">04</div>
+          <div class="feature-title">Lightweight System</div>
+          <div class="feature-desc">Zero installation overhead—runs natively in the browser leveraging WebGL.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GESTURE GUIDE -->
+    <section class="gesture-guide-section reveal" style="animation-delay: 0.3s;">
+      <div class="guide-card">
+        <div class="guide-icon">☝️</div>
+        <div class="guide-action">Index Finger</div>
+        <div class="guide-desc">Draw</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-icon">✌️</div>
+        <div class="guide-action">Two Fingers</div>
+        <div class="guide-desc">Stop</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-icon">✊</div>
+        <div class="guide-action">Fist</div>
+        <div class="guide-desc">Erase</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Final Year Engineering Project — AirCanvas Platform</p>
+  </footer>
+
+  <script src="js/landing.js"></script>
+  <script>
+    // Just a visual formatter to match the strict 9-char format XXXX-XXXX
+    function formatRoomId(input) {
+      let val = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if(val.length > 4) val = val.slice(0, 4) + '-' + val.slice(4, 8);
+      input.value = val;
+    }
+    // Redirect cleanly
+    function goToJoin(val) {
+      if (val) {
+        window.location.href = `join.html?room=${encodeURIComponent(val)}`;
+      } else {
+        window.location.href = 'join.html';
+      }
+    }
+  </script>
+</body>
+</html>
