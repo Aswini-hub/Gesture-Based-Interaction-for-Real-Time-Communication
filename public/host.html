@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Host a meeting session with AirCanvas gesture controls">
+    <title>Host Meeting - AirCanvas Platform</title>
+    <!-- Fonts: Syne and JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <!-- TOP BAR -->
+        <header class="top-bar">
+            <div class="brand">
+                <span class="brand-logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 100 100" fill="none" stroke="url(#logo-grad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;">
+                      <defs>
+                        <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#FF6BF0"/>
+                          <stop offset="100%" stop-color="#4DA3FF"/>
+                        </linearGradient>
+                      </defs>
+                      <path d="M38 62 L48 38 h4 L62 62 M42 54 h16"/>
+                      <g id="figLogo">
+                        <path d="M42 22 L50 32 L58 22" />
+                        <circle cx="50" cy="12" r="4.5" fill="url(#logo-grad)" stroke="none"/>
+                      </g>
+                      <use href="#figLogo" transform="rotate(45 50 50)" />
+                      <use href="#figLogo" transform="rotate(90 50 50)" />
+                      <use href="#figLogo" transform="rotate(135 50 50)" />
+                      <use href="#figLogo" transform="rotate(180 50 50)" />
+                      <use href="#figLogo" transform="rotate(225 50 50)" />
+                      <use href="#figLogo" transform="rotate(270 50 50)" />
+                      <use href="#figLogo" transform="rotate(315 50 50)" />
+                    </svg>
+                </span>
+                <h1 class="brand-title">AirCanvas</h1>
+            </div>
+
+            <!-- New Badge for AirCanvas -->
+            <div class="mode-badge">
+                <span class="badge-dot" style="width: 8px; height: 8px; background: var(--accent); border-radius: 50%;"></span>
+                AirCanvas ON
+            </div>
+
+            <div class="room-pill">
+                <span class="room-label">ROOM</span>
+                <span class="room-value" id="roomId">-----</span>
+            </div>
+
+            <div class="top-actions">
+                <button id="startCameraBtn" class="btn btn-primary">
+                    <span class="btn-icon">📷</span> Start Camera
+                </button>
+                <button id="toggleMicBtn" class="btn btn-secondary" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
+                </button>
+                <button id="toggleVideoBtn" class="btn btn-secondary" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"></path><rect x="2" y="6" width="14" height="12" rx="2"></rect></svg>
+                </button>
+                <button id="endSessionBtn" class="btn btn-danger" disabled>
+                    <span class="btn-icon">⛔</span> End Session
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN DASHBOARD BODY -->
+        <main class="dashboard-body">
+            <!-- LEFT PANEL: AirCanvas Controls -->
+            <aside class="panel panel-left">
+                <div class="panel-header">
+                    <h2>Controls</h2>
+                </div>
+
+                <div class="panel-content">
+                    <div class="control-group">
+                        <label class="control-header">AirCanvas Mode</label>
+                        <div class="toggle-container-premium">
+                            <label class="switch-premium">
+                                <input type="checkbox" id="aircanvasToggle" disabled>
+                                <span class="slider-premium"></span>
+                            </label>
+                            <span id="toggleLabel" class="toggle-text">OFF</span>
+                        </div>
+                        <div id="statusDetail" class="text-muted" style="font-size: 0.7rem; color: var(--text2);">Mode: Disabled</div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Canvas Action Buttons -->
+                    <div class="control-group">
+                        <label class="control-header">Canvas Actions</label>
+                        <div class="action-buttons-grid">
+                            <button id="undoBtn" class="btn btn-action" disabled title="Undo last stroke">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                                Undo
+                            </button>
+                            <button id="clearCanvasBtn" class="btn btn-action" disabled title="Clear entire canvas">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="m19 6-.867 12.142A2 2 0 0 1 16.138 20H7.862a2 2 0 0 1-1.995-1.858L5 6m5 0V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2"></path></svg>
+                                Clear
+                            </button>
+                            <button id="saveCanvasBtn" class="btn btn-action btn-action-wide" disabled title="Save canvas as PNG image">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                Save PNG
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CENTER PANEL: Video + Canvas -->
+            <section class="panel panel-center">
+                <div class="video-workspace" id="videoWorkspace">
+                    <div class="canvas-wrapper">
+                        <video id="webcam" autoplay playsinline muted></video>
+                        <canvas id="hostCanvas"></canvas>
+                        <canvas id="trackingOverlay"></canvas>
+                        <div id="participant-strip" style="position: absolute; bottom: 20px; right: 20px; display: flex; gap: 10px; flex-wrap: wrap; z-index: 100;"></div>
+
+                        <div id="videoPlaceholder" class="video-placeholder">
+                            <div class="placeholder-content">
+                                <span class="placeholder-icon">📷</span>
+                                <p>SYSTEM OFFLINE</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: Session Info -->
+            <aside class="panel panel-right">
+                <div class="panel-header">
+                    <h2>Status</h2>
+                </div>
+
+                <div class="panel-content">
+                    <div class="status-list">
+                        <div class="status-item">
+                            <label>Camera</label>
+                            <div class="status-indicator status-inactive" id="cameraStatus">
+                                <span class="status-dot"></span>
+                                <span class="status-text">Inactive</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <label>Gesture Mode</label>
+                            <div class="status-indicator status-inactive" id="gestureMode">
+                                <span class="status-dot"></span>
+                                <span class="status-text">No Gesture</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <label>Tracking</label>
+                            <div class="status-indicator status-inactive" id="trackingStatus">
+                                <span class="status-dot"></span>
+                                <span class="status-text">Inactive</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gesture Instructions Float -->
+                    <div class="gesture-guide">
+                        <div class="gesture-guide-title">How to Use</div>
+                        <div class="gesture-guide-items">
+                            <div class="gesture-guide-item">
+                                <span class="gesture-emoji">☝️</span>
+                                <div class="gesture-info">
+                                    <span class="gesture-action">Index finger</span>
+                                    <span class="gesture-desc">Draw</span>
+                                </div>
+                            </div>
+                            <div class="gesture-guide-item">
+                                <span class="gesture-emoji">✌️</span>
+                                <div class="gesture-info">
+                                    <span class="gesture-action">Two fingers</span>
+                                    <span class="gesture-desc">Pick Color</span>
+                                </div>
+                            </div>
+                            <div class="gesture-guide-item">
+                                <span class="gesture-emoji">✊</span>
+                                <div class="gesture-info">
+                                    <span class="gesture-action">Fist</span>
+                                    <span class="gesture-desc">Erase</span>
+                                </div>
+                            </div>
+                            <div class="gesture-guide-item">
+                                <span class="gesture-emoji">🖐️</span>
+                                <div class="gesture-info">
+                                    <span class="gesture-action">Open hand</span>
+                                    <span class="gesture-desc">Idle / Pause</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- MediaPipe Hands Library from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <!-- Application Scripts -->
+    <script src="js/mediapipe-config.js"></script>
+    <script src="js/host.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/socket-host.js"></script>
+    <script src="js/webrtc-manager.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+aircanvas-env/
+.venv311/
+
+
+
+
+node_modules/
+__pycache__/
+*.pyc
+.env
+
+
+.DS_Store
